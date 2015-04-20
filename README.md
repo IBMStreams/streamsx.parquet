@@ -1,2 +1,15 @@
 streamsx.parquet
 ================
+
+Parquet is a columnar storage format for Hadoop. 
+Parquet becoming more and more popular due to its very 
+efficient compression and encoding schemes.
+See more details at Parquet home page: http://parquet.io/
+
+The Parquet toolkit allows to write data in Parquet format 
+from streaming applications. The toolkit is  implemented in Java and 
+contains ParquetSink operator in its initial version.
+
+Samples showing ParquetSink operator usages are available in 
+a standard samples folder.  The details about the installation, 
+and configuration are about to be published soon. 
