@@ -11,5 +11,5 @@ from streaming applications. The toolkit is  implemented in Java and
 contains ParquetSink operator in its initial version.
 
 Samples showing ParquetSink operator usages are available in 
-a standard samples folder.  The details about the installation, 
+a samples folder.  The details about the installation, 
 and configuration are about to be published soon. 
