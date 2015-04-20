@@ -22,8 +22,6 @@ impl/lib/*.jar
 *.war
 *.ear
 
-# Sample Files #
-samples/*
 
 
 ## C++ excludes
@@ -40,5 +38,6 @@ samples/*
 *.lai
 *.la
 *.a
-/.toolkitList
+.toolkitList
+.settings
 
