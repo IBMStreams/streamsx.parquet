@@ -8,7 +8,7 @@
 
 	<groupId>com.ibm</groupId>
 	<artifactId>com.ibm.streamsx.parquet</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>com.ibm.streamsx.parquet</name>
@@ -21,11 +21,7 @@
 		<repository>
 			<id>apache.snapshots</id>
 			<url>http://repository.apache.org/content/repositories/snapshots/</url>
-		</repository>
-		<repository>
-			<id>local-repository</id>
-			<url>file://${project.basedir}/repository</url>
-		</repository>
+		</repository>	
 	</repositories>
 	<build>
 		<directory>${project.basedir}/target</directory>
@@ -95,28 +91,10 @@
 			<artifactId>log4j</artifactId>
 			<version>1.2.16</version>
 		</dependency>
-		<!-- Streams Java primitive operator model dependency -->
-		<dependency>
-			<groupId>com.ibm.streams</groupId>
-			<artifactId>operator</artifactId>
-			<version>3.2.1.0</version>
-		</dependency>
 		<dependency>      	
       		<groupId>junit</groupId>
       		<artifactId>junit</artifactId>
       		<version>4.8.1</version>
-      		<scope>test</scope>
-    	</dependency>
-    	<dependency>      	
-      		<groupId>com.ibm.streams</groupId>
-      		<artifactId>operator-internal</artifactId>
-      		<version>3.2.1.0</version>
-      		<scope>test</scope>
-    	</dependency>
-    	<dependency>      	
-      		<groupId>com.ibm.streams</groupId>
-      		<artifactId>operator-samples</artifactId>
-      		<version>3.2.1.0</version>
       		<scope>test</scope>
     	</dependency>
     	<dependency>
