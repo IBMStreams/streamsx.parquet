@@ -340,7 +340,7 @@ public class ParquetSink extends AbstractOperator {
     	for (int i = 0; i <  attrMetadataExtractor.getAttrCount(); i++) {    		    		
     		Type attrType = attrTypeList.get(i);    		
     		Object attrValue = tuple.getObject(i);    		
-    		if (skipPartitionAttrs) {
+    		if (skipPartitionAttrs && partitionKeyNames != null) {
     			String attrName = (String)attrNamesList.get(i);
     			if (partitionValueAttrNames != null && !partitionValueAttrNames.contains(attrName)) {
         			writableValues[i] = SPLPrimitiveWritableObj(attrType, attrValue);    				
