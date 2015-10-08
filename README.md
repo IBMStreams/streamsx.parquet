@@ -1,6 +1,8 @@
 streamsx.parquet
 ================
 
+Support for Streams 4.0 and BI 4.0 is now available!
+
 Parquet is a columnar storage format for Hadoop. 
 Parquet becoming more and more popular due to its very 
 efficient compression and encoding schemes.
