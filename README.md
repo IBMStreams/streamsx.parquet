@@ -15,3 +15,5 @@ contains ParquetSink operator in its initial version.
 Samples showing ParquetSink operator usages are available in 
 a samples folder.  The details about the installation, 
 and configuration are about to be published soon. 
+
+Toolkit documentation is available at: http://ibmstreams.github.io/streamsx.parquet/
