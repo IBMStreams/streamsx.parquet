@@ -11,14 +11,16 @@ CREATE EXTERNAL HADOOP TABLE raw_events_sample (
         tcp_length      INTEGER NOT NULL,
         mms             BIGINT NOT NULL,
         dest_port     INTEGER NOT NULL,
-        file_length     BIGINT NOT NULL
+        file_length     BIGINT NOT NULL,
+	f1 		REAL NOT NULL,
+	f2 		DOUBLE NOT NULL
 )
 STORED AS PARQUETFILE
-LOCATION '/user/bigsql/ptest'
+LOCATION '/user/bigsql/alex/parquet'
 ;
 
 -----------------------------------------------------------------------------------------
-MSCK REPAIR TABLE PTEST.raw_events_sample
+MSCK REPAIR TABLE PTEST.raw_events_sample;
 SELECT * FROM raw_events_sample;
 
 quit;

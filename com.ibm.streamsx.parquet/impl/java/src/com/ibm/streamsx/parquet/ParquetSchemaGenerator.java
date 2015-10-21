@@ -63,7 +63,7 @@ public class ParquetSchemaGenerator {
 				if (attrType.getMetaType().isCollectionType()) {
 					parquetSchema.append(SPLCollectionToParquetType(attr));
 				} else {					
-					parquetSchema.append("required " + SPLPrimitiveToParquetType(attrType) + " " + attrName + ";\n");   
+					parquetSchema.append("required " + SPLPrimitiveToParquetType(attrType, attrName) + ";\n");   
 					attrTypesList.add(attrType);
 				}
 			}
@@ -84,14 +84,14 @@ public class ParquetSchemaGenerator {
 			case LIST: 
 			case SET:
 			{
-				parquetSchema.append("\trepeated " +  SPLPrimitiveToParquetType(attr.getType()) + " " + attr.getName());
+				parquetSchema.append("\trepeated " +  SPLPrimitiveToParquetType(attr.getType(), attr.getName()));
 				parquetSchema.append("} \n" );
 				break;
 			}
 			case MAP: {
 				parquetSchema.append("\trepeated group " + attr.getName() + "{ \n" );
-				parquetSchema.append("\t\trequired " + SPLPrimitiveToParquetType(attr.getType()) + ";\n" );
-				parquetSchema.append("\t\toptional " + SPLPrimitiveToParquetType(attr.getType()) + ";\n" );
+				parquetSchema.append("\t\trequired " + SPLPrimitiveToParquetType(attr.getType(), "") + ";\n" );
+				parquetSchema.append("\t\toptional " + SPLPrimitiveToParquetType(attr.getType(), "") + ";\n" );
 				parquetSchema.append("} \n" );
 				break;
 			}
@@ -103,34 +103,39 @@ public class ParquetSchemaGenerator {
 		return parquetSchema.toString();
 	}
 	
-	public String SPLPrimitiveToParquetType(Type attrType) {
+	public String SPLPrimitiveToParquetType(Type attrType, String attrName) {
 		Type.MetaType attrMetaType = attrType.getMetaType();
 		
 		switch (attrMetaType) {
 			case BOOLEAN: {
-				return "boolean";
+				return "boolean " + attrName;
 			}
 			case INT32: {
-				return "int32";
+				return "int32 " + attrName;
 			}
 			case INT64: {
-				return "int64";
+				return "int64 " + attrName;
 			}
 			case FLOAT32: {
-				return "float";
+				return "float " + attrName;
 			}
 			case FLOAT64: {
-				return "double";
+				return "double " + attrName;
 			}
-			case USTRING:
 			case RSTRING: {
-				return "binary";
+				return "binary " + attrName + " (UTF8)";
+			}
+			case USTRING: {
+				return "binary " + attrName;
+			}
+			case TIMESTAMP: {
+				return "int96 " + attrName;
 			}
 			case BLOB: {
-				return "binary";
+				return "binary " + attrName;
 			}
 			default: {			
-				return "binary";			
+				return "binary " + attrName;			
 			}
 		}
 	}

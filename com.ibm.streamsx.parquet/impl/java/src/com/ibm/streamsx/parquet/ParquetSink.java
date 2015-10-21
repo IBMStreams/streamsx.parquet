@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -17,7 +16,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.BooleanWritable;
-import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.hive.serde2.io.DoubleWritable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -387,7 +386,7 @@ public class ParquetSink extends AbstractOperator {
     public void processPunctuation(StreamingInput<Tuple> stream,
     		Punctuation mark) throws Exception {
     	super.processPunctuation(stream, mark);
-//    	if (getCloseOnPunct()) {
+    	//    	if (getCloseOnPunct()) {
 //    		closeFile();
 //    		refreshOutPath();
 //    		if (getOverwrite()) {
@@ -653,8 +652,8 @@ public class ParquetSink extends AbstractOperator {
  				return new FloatWritable(cValue.floatValue());
  			}
  			case FLOAT64: {
- 				Double cValue = (Double)value;
- 				return new DoubleWritable(cValue.doubleValue());
+ 				Double cValue = (Double)value; 				
+ 				return new DoubleWritable(cValue);
  			}
  			case RSTRING: {
  				RString cValue = (RString)value;

@@ -2,11 +2,6 @@ namespace com.ibm.streamsx.parquet.sample;
 
 use com.ibm.streamsx.parquet::ParquetSink ;
 
-/**
- * The sample demonstrates ParquetSink
- * utilization for timestamp-based partition
- * 
- */
 composite RawSample {
 
 	param
@@ -21,7 +16,9 @@ composite RawSample {
             int32 tcpLength, 
             int64 mms,
             int32 dest_port, 
-            int64 fileLength; 
+            int64 fileLength,
+            float32 f1,
+            float64 f2; 
 	         
 	graph
 		
