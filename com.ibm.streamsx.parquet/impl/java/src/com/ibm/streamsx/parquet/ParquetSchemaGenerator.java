@@ -12,6 +12,9 @@ import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.StreamingInput;
 import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.Type;
+import com.ibm.streams.operator.meta.CollectionType;
+import com.ibm.streams.operator.meta.MapType;
+
 
 public class ParquetSchemaGenerator {
 	
@@ -68,7 +71,9 @@ public class ParquetSchemaGenerator {
 				}
 			}
 			parquetSchema.append("}\n");
-		    logger.info("Generated parquet schema: \n'" + parquetSchema + "'");  		
+			if (logger.isInfoEnabled()) {
+		    		logger.info("Generated parquet schema: \n'" + parquetSchema + "'");
+			}
     	}
     	
     	
@@ -84,14 +89,17 @@ public class ParquetSchemaGenerator {
 			case LIST: 
 			case SET:
 			{
-				parquetSchema.append("\trepeated " +  SPLPrimitiveToParquetType(attr.getType(), attr.getName()));
-				parquetSchema.append("} \n" );
+				parquetSchema.append("\toptional group " + attr.getName() + " (LIST) { \n" );
+				parquetSchema.append("\t\trepeated group bag { \n" );
+				parquetSchema.append("\t\t\toptional " +  SPLPrimitiveToParquetType(((CollectionType)attr.getType()).getElementType(), "array_element") + ";\n" );
+				parquetSchema.append("\t\t} \n" );
+				parquetSchema.append("\t} \n" );
 				break;
 			}
 			case MAP: {
 				parquetSchema.append("\trepeated group " + attr.getName() + "{ \n" );
-				parquetSchema.append("\t\trequired " + SPLPrimitiveToParquetType(attr.getType(), "") + ";\n" );
-				parquetSchema.append("\t\toptional " + SPLPrimitiveToParquetType(attr.getType(), "") + ";\n" );
+				parquetSchema.append("\t\trequired " + SPLPrimitiveToParquetType(((MapType)attr.getType()).getKeyType(), "key") + ";\n" );
+				parquetSchema.append("\t\toptional " + SPLPrimitiveToParquetType(((MapType)attr.getType()).getValueType(), "value") + ";\n" );
 				parquetSchema.append("} \n" );
 				break;
 			}
@@ -110,10 +118,16 @@ public class ParquetSchemaGenerator {
 			case BOOLEAN: {
 				return "boolean " + attrName;
 			}
-			case INT32: {
+			case INT8: 
+			case UINT8:
+			case INT16:
+			case UINT16:
+			case INT32:
+			case UINT32: {
 				return "int32 " + attrName;
 			}
-			case INT64: {
+			case INT64:
+			case UINT64: {
 				return "int64 " + attrName;
 			}
 			case FLOAT32: {
@@ -135,7 +149,7 @@ public class ParquetSchemaGenerator {
 				return "binary " + attrName;
 			}
 			default: {			
-				return "binary " + attrName;			
+				return "binary " + String.valueOf(attrMetaType) + " " + attrName;			
 			}
 		}
 	}

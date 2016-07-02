@@ -17,10 +17,7 @@ public class ParquetConstants {
     public static String CLOSE_ON_PUNCT_PNAME = "closeOnPunct";
     public static final String TUPLES_PER_FILE_PNAME = "tuplesPerFile";
     public static final String PARTITION_VALUE_ATTR_NAMES_PNAME = "partitionValueAttrNames";
-    public static final String PARTITION_KEY_NAMES_PNAME = "partitionKeyNames";
-
-	public static final String FILE_INDEX_DELIMITER = ".";
-
+    public static final String PARTITION_KEY_NAMES_PNAME = "partitionKeyNames";    
 
     /**
      * Auxiliary constants
