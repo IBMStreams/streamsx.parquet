@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # CONSTANTS
-composite=PartitionSample
+composite=PartitionCloseOnCountSample
 namespace=com.ibm.streamsx.parquet.sample
 
 SAMPLE_HOME="../../.."
