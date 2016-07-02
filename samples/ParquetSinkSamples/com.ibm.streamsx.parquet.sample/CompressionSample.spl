@@ -58,9 +58,9 @@ composite CompressionSample
      	        overwrite: true;
      	        compressionType: $compressionType;
      	        tuplesPerFile: 10;
-      	        
+     	        // set block size to 64M - default is 128M
+     	        blockSize: 67108864;      	        
 		}
-
 }
 
 composite CompressionSampleRunner
@@ -74,16 +74,17 @@ composite CompressionSampleRunner
 
 		() as GZIPSample = CompressionSample() { 
 			param 
-				dataFile: "sampleData.txt";
+				dataFile: "compressionSampleData.txt";
 				compressionType: "gzip";
 				outFileExt: "gz";
 				hdfsUri: $hdfsUri;
 				hdfsUser:$hdfsUser;
      	    	hdfsRootPath: $hdfsRootPath;
+     	    	
 		}
 		() as SnappySample = CompressionSample() { 
 			param 
-				dataFile: "sampleData.txt";
+				dataFile: "compressionSampleData.txt";
 				compressionType: "snappy"; 
 				outFileExt: "snappy";
 				hdfsUri: $hdfsUri;

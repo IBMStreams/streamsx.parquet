@@ -7,7 +7,7 @@ use com.ibm.streamsx.parquet::ParquetSink ;
  * utilization for timestamp-based partition
  * 
  */
-composite PartitionSample {
+composite PartitionCloseOnCountSample {
 
 	param
 		expression<rstring> $hdfsUri: getSubmissionTimeValue("hdfsUri", "hdfs://9.148.58.232:8020");
@@ -23,7 +23,7 @@ composite PartitionSample {
 		stream<CompressionSample.RawNetworkEvent_t> NetworkEvent = FileSource()
 		{
 			param
-				file: "sampleData.txt";
+				file: "partitionSampleData.txt";
 				format: csv;
 				separator: "|";
 		}
@@ -56,13 +56,13 @@ composite PartitionSample {
 				hdfsUri: $hdfsUri;
 				hdfsUser: $hdfsUser;
      	    	rootPath: $hdfsRootPath;
-     	        file:  "sampleDataPartitioned.txt";
+     	        file:  "partitionSampleData.txt";
      	        overwrite: true;
      	        compressionType: "uncompressed";
      	        tuplesPerFile: 5;
                	partitionKeyNames: "year", "month", "day", "hour";
                 partitionValueAttrNames: "YEAR", "MONTH", "DAY", "HOUR";    
-      	        
+      	        blockSize: 67108864; 
 		}
 
 }

@@ -1,0 +1,117 @@
+namespace com.ibm.streamsx.parquet.sample;
+
+use com.ibm.streamsx.parquet::ParquetSink ;
+
+/**
+ * The sample demonstrates ParquetSink operator 
+ * closing output files every 30 seconds.
+ * Note, that empty files won't be created if no
+ * new data arrived.
+ */
+public composite PartitionCloseOnPunctSample {
+	
+	param
+		expression<rstring> $hdfsUri: getSubmissionTimeValue("hdfsUri");
+		expression<rstring> $hdfsUser : getSubmissionTimeValue("hdfsUser");
+		expression<rstring> $hdfsRootPath: getSubmissionTimeValue("hdfsRootPath");
+		expression<rstring> $hdfsFileDir: getSubmissionTimeValue("hdfsFileDir", "CloseOnPunctTest");
+		expression<rstring> $hdfsFileName: getSubmissionTimeValue("hdfsFileName", "MyFile");
+		expression<rstring> $biTable: getSubmissionTimeValue("biTable", "MY_TABLE");
+		expression<rstring> $parquetCompressionType: getSubmissionTimeValue("parquetCompressionType","snappy");
+		expression<rstring> $parquetSinkVMArgs: getCompileTimeValue("parquetSinkVMArgs","-Xmx4096m");
+		expression<rstring> $dataFile: getSubmissionTimeValue("dataFile", "partitionSampleData.txt");
+		expression<float64> $flushPeriodSecs: (float64)getSubmissionTimeValue("flushPeriodSecs", "30.0");
+		
+	graph
+		
+		/**
+		 * Read and Parse raw events
+		 */		
+		stream<CompressionSample.RawNetworkEvent_t> NetworkEvent = FileSource()
+		{
+			param
+				file: $dataFile;
+				format: csv;
+				separator: "|";
+				initDelay: 10.0;
+		}
+
+		/**
+		 * Add partition-specific attributes
+		 */
+		stream<NetworkEvent, tuple<int32 YEAR, int32 MONTH,  int32 DAY, int32 HOUR>> PartitionedNetworkEvent = Functor(NetworkEvent) {
+			logic 
+				state: {
+					mutable timestamp dt_orig_ts;
+				}
+				onTuple NetworkEvent: {
+					// original format 2014-07-28 12:42:45.618
+					dt_orig_ts = toTimestamp(Sys.YYYY_MM_DD_hh_mm_ss_mmm,dt_orig);
+				}
+			
+			output PartitionedNetworkEvent:
+            	YEAR = (int32)year(dt_orig_ts), 
+            	MONTH = ((int32)month(dt_orig_ts)) + 1, 
+            	DAY = (int32)day(dt_orig_ts), 
+             	HOUR = (int32)hour(dt_orig_ts);
+	
+		}
+	
+		/**
+		 * Generates trigger for parquet file close
+		 */
+		stream <boolean flush> FlushBeacon = Beacon() {
+			param
+				period : $flushPeriodSecs;
+			
+		}
+		
+		stream<PartitionedNetworkEvent> FlushControl = Custom(FlushBeacon) {
+			logic
+		        onTuple FlushBeacon : {
+					submit(Sys.WindowMarker, FlushControl) ;
+		        }
+		}
+		
+		/**
+		 * Write data to HDFS in parquet format. The results are partitioned on a day 
+		 * granularity level. Output files are closed every 30 seconds.
+		 */
+		stream<rstring partition> ParquetMetaData = ParquetSink(PartitionedNetworkEvent , FlushControl) {
+			param
+				hdfsUri : $hdfsUri ;
+				hdfsUser : $hdfsUser ;
+		    	rootPath : $hdfsRootPath + "/" + $hdfsFileDir;
+		 	    file: $hdfsFileName + "." + (rstring)getSeconds(getTimestamp()) + ".{ID}.dat" ;
+				autoCreate : false;
+		        compressionType : $parquetCompressionType ;
+				closeOnPunct : true ;
+				partitionKeyNames: "year", "month", "day", "hour";
+                partitionValueAttrNames: "YEAR", "MONTH", "DAY", "HOUR";   
+				skipPartitionAttrs : true ;
+				vmArg : $parquetSinkVMArgs;
+     	        // set block size to 64M - default is 128M
+     	        blockSize: 67108864;
+		}
+		
+		/**
+		 * Generates BigSQL statement for the new partition addition.
+		 * The command is useful for new partitions dynamic update.
+		 */
+		stream<rstring command> ParquetMetaDataCommand = Functor(ParquetMetaData)
+		{
+			output
+				ParquetMetaDataCommand :
+					command = "ALTER TABLE " + $biTable + " ADD IF NOT EXISTS PARTITION (" + regexReplace(partition, "/", ",", true) + ");\n" ;
+		}
+		
+		/**
+		 * Prints out partition update command to standard output
+		 */
+		() as sinkPrefixSink = FileSink(ParquetMetaDataCommand)   {
+		            param
+		                file : "/dev/stdout";
+		                flush: 1u;
+		}
+
+}
