@@ -22,6 +22,7 @@
 	<property name="gensrc.dir" value="${basedir}/impl/java/src-gen" />
 	<property name="jarfile" value="com.ibm.streamsx.parquet.jar" />
 	<property name="spl-mt" value="${streams.install}/bin/spl-make-toolkit" />
+	<property name="release.base" location="release-${ant.project.name}" />
 	
 	<target name="init">
 		<fail unless="env.M2_HOME" 
@@ -70,6 +71,7 @@
 	
 	
 	<target name="all" depends="jar,cpp"/>
+	<target name="release" depends="clean,all,create_release_bundle"/>	
 	
 	<target name="cpp">
 		<exec executable="${spl-mt}" failonerror="true">
@@ -156,5 +158,21 @@
 		</junitreport>
 	</target>
 
+	<target name="create_release_bundle">
+	      <tstamp/>
+	      <property name="release.dir" location="${release.base}" />
+	      <mkdir dir="${release.dir}" />
+	      <property name="releasefilename" value="${release.dir}/com.ibm.streamsx.parquet-v1.0.2-${DSTAMP}-${TSTAMP}.tgz"/>
+	      <tar compression="gzip" longfile="gnu" destfile="${releasefilename}">
+	         <tarfileset dir="${basedir}" filemode="755" />	         
+	         <tarfileset dir="../${basedir}" >
+	           <include name="com.ibm.streamsx.parquet/**"/>
+	           <exclude name="**/.gitignore"/>
+	         </tarfileset>
+	      </tar>
+	      <checksum file="${releasefilename}"/>
+	      <checksum algorithm="sha1" file="${releasefilename}"/>
+	  </target>
+	
 </project>
 
