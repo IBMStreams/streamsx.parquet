@@ -12,7 +12,7 @@ projectDir=$( cd ${SAMPLE_HOME} ; pwd )
 outputDir="${projectDir}/output/com.ibm.streamsx.parquet.sample.RawSample/Standalone"
 dataDir="${projectDir}/data"
 logDir="${projectDir}/logs/"
-PARQUET_TOOLKIT_HOME="/homes/apyasic/github/streamsx.parquet"
+PARQUET_TOOLKIT_HOME="${projectDir}/../.."
 
 
 #FUNCTIONS
