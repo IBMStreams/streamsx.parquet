@@ -54,7 +54,7 @@
 	</path>
 
 	<path id="cp.ext.libs">
-		<fileset dir="${ext.downloads.dir}"/>
+		<fileset dir="${lib.dir}"/>
 	</path>
 
 
@@ -92,13 +92,19 @@
 			<arg value="dependency:copy-dependencies"/>
 			<arg value="-DoutputDirectory=${ext.downloads.dir}"/>			
 	    </exec>
+		<zip destfile="${lib.dir}/dependencies.jar">
+			    <zipgroupfileset dir="${ext.downloads.dir}" includes="*.jar" />		
+		</zip>			
+		<delete>
+		    <fileset dir="${ext.downloads.dir}" includes="*.jar" excludes="dependencies.jar"/>
+		 </delete>
+		 <delete dir="${ext.downloads.dir}"/>
 	</target>
 	
-
 	<target name="compile" depends="init, maven-deps">
 		<javac srcdir="${src.dir}" destdir="${build.dir}" debug="true"
 			includeantruntime="no"
-			excludes="com/ibm/streamsx/parquet/**/*$StreamsModel.java" >
+			excludes="com/ibm/streamsx/parquet/**/*$StreamsModel.java"> 
 			<classpath>
 				<path refid="cp.compile" />
 			</classpath>
@@ -120,6 +126,7 @@
 		<delete dir="${build.dir}" />		
 	</target>
 
+	
 	<target name="test" depends="jar">
 	    <javac srcdir="${test.src.dir}" 
 	    	destdir="${test.build.dir}"
