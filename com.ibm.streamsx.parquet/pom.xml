@@ -8,7 +8,7 @@
 
 	<groupId>com.ibm</groupId>
 	<artifactId>com.ibm.streamsx.parquet</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>1.0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>com.ibm.streamsx.parquet</name>
@@ -66,15 +66,7 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-
 	<dependencies>
-		<!-- Hadoop client dependency -->
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-client</artifactId>
-			<version>2.7.0</version>
-		</dependency>
-		<!-- Parquet dependencies -->
 		<dependency>
 			<groupId>com.twitter</groupId>
 			<artifactId>parquet-hadoop</artifactId>
@@ -85,32 +77,26 @@
 			<artifactId>parquet-hive</artifactId>
 			<version>1.2.8</version>
 		</dependency>
-		<!-- Log4J dependency -->
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.16</version>
-		</dependency>
-		<dependency>      	
-      		<groupId>junit</groupId>
-      		<artifactId>junit</artifactId>
-      		<version>4.8.1</version>
-      		<scope>test</scope>
-    	</dependency>
-    	<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-math</artifactId>
-			<version>2.0</version>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-client</artifactId>
+			<version>2.7.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.hive</groupId>
-			<artifactId>hive-serde</artifactId>
-			<version>0.13.1</version>
-		</dependency>	
+			<artifactId>hive-exec</artifactId>
+			<version>0.14.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.calcite</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 		<dependency>
         	<groupId>com.twitter</groupId>
             <artifactId>parquet-tools</artifactId>
-            <version>1.5.0</version>
-        </dependency>	
+            <version>1.6.0</version> 
+        </dependency>
 	</dependencies>
 </project>
