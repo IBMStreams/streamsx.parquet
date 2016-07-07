@@ -68,28 +68,9 @@ import parquet.schema.MessageType;
 import parquet.schema.MessageTypeParser;
 
 /**
- * Class for an operator that consumes tuples and does not produce an output
- * stream. This pattern supports a number of input streams and no output
- * streams.
- * <P>
- * The following event methods from the Operator interface can be called:
- * </p>
- * <ul>
- * <li><code>initialize()</code> to perform operator initialization</li>
- * <li>allPortsReady() notification indicates the operator's ports are ready to
- * process and submit tuples</li>
- * <li>process() handles a tuple arriving on an input port
- * <li>processPuncuation() handles a punctuation mark arriving on an input port
- * <li>shutdown() to shutdown the operator. A shutdown request may occur at any
- * time, such as a request to stop a PE or cancel a job. Thus the shutdown() may
- * occur while the operator is processing tuples, punctuation marks, or even
- * during port ready notification.</li>
- * </ul>
- * <p>
- * With the exception of operator initialization, all the other events may occur
- * concurrently with each other, which lead to these methods being called
- * concurrently by different threads.
- * </p>
+ * Operator allows to write data in Parquet format from streaming applications.
+ * @author apyasic
+ *
  */
 @PrimitiveOperator(name = "ParquetSink", namespace = "com.ibm.streamsx.parquet", description = "Java Operator ParquetSink")
 @InputPorts({
@@ -201,7 +182,7 @@ public class ParquetSink extends AbstractOperator {
 		// removed.
 		// NEVER: never add a new datanode.
 		// DEFAULT: Let r be the replication number. Let n be the number of
-		// existing datanodes.
+		// existing dat..array_element:  anodes.
 		// Add a new datanode only if r is greater than or equal to 3 and either
 		// (1) floor(r/2) is
 		// greater than or equal to n; or (2) r is greater than n and the block
@@ -559,7 +540,7 @@ public class ParquetSink extends AbstractOperator {
 	 * Parameter definitions
 	 */
 
-	@Parameter(name = "blockSize", description = "", optional = true)
+	@Parameter(name = "blockSize", description = "Block Size", optional = true)
 	public void setBlockSize(int blockSize) {
 		this.blockSize = blockSize;
 	}
@@ -568,7 +549,7 @@ public class ParquetSink extends AbstractOperator {
 		return this.blockSize;
 	}
 
-	@Parameter(name = "pageSize", description = "", optional = true)
+	@Parameter(name = "pageSize", description = "Page Size", optional = true)
 	public void setPageSize(int pageSize) {
 		this.pageSize = pageSize;
 	}
@@ -577,7 +558,7 @@ public class ParquetSink extends AbstractOperator {
 		return this.pageSize;
 	}
 
-	@Parameter(name = "hdfsUri", description = "", optional = false)
+	@Parameter(name = "hdfsUri", description = "Target HDFS URI", optional = false)
 	public void setHdfsUri(String hdfsUri) {
 		this.hdfsUri = hdfsUri;
 	}
@@ -586,7 +567,7 @@ public class ParquetSink extends AbstractOperator {
 		return this.hdfsUri;
 	}
 
-	@Parameter(name = "hdfsUser", description = "", optional = false)
+	@Parameter(name = "hdfsUser", description = "HDFS User", optional = false)
 	public void setUser(String hdfsUser) {
 		this.hdfsUser = hdfsUser;
 	}
@@ -595,7 +576,7 @@ public class ParquetSink extends AbstractOperator {
 		return this.hdfsUser;
 	}
 
-	@Parameter(name = "rootPath", description = "", optional = false)
+	@Parameter(name = "rootPath", description = "Target directory root path", optional = false)
 	public void setRootPath(String rootPath) {
 		this.rootPath = rootPath;
 	}
@@ -604,7 +585,7 @@ public class ParquetSink extends AbstractOperator {
 		return this.rootPath;
 	}
 
-	@Parameter(name = "file", description = "", optional = false)
+	@Parameter(name = "file", description = "Target file name", optional = false)
 	public void setFile(String file) {
 		this.file = file;
 	}
@@ -613,7 +594,7 @@ public class ParquetSink extends AbstractOperator {
 		return this.file;
 	}
 
-	@Parameter(name = "dictPageSize", description = "", optional = true)
+	@Parameter(name = "dictPageSize", description = "Dictionary page size", optional = true)
 	public void setDictPageSize(int dictPageSize) {
 		this.dictPageSize = dictPageSize;
 	}
@@ -622,7 +603,7 @@ public class ParquetSink extends AbstractOperator {
 		return this.dictPageSize;
 	}
 
-	@Parameter(name = "closeOnPunct", description = "", optional = true)
+	@Parameter(name = "closeOnPunct", description = "Close target file on punctuation received", optional = true)
 	public void setCloseOnPunct(boolean closeOnPunct) {
 		this.closeOnPunct = closeOnPunct;
 	}
@@ -631,7 +612,7 @@ public class ParquetSink extends AbstractOperator {
 		return this.closeOnPunct;
 	}
 
-	@Parameter(name = "compressionType", description = "", optional = true)
+	@Parameter(name = "compressionType", description = "Target file compression. Supported values are: 'snappy', 'gzip' and 'uncomressed' (default).", optional = true)
 	public void setCompressionType(String compressionTypeStr) {
 		this.compressionTypeStr = compressionTypeStr.toUpperCase();
 	}
@@ -640,7 +621,7 @@ public class ParquetSink extends AbstractOperator {
 		return this.compressionTypeStr;
 	}
 
-	@Parameter(name = "enableDictionaryEncoding", description = "", optional = true)
+	@Parameter(name = "enableDictionaryEncoding", description = "Enable dictionary encoding", optional = true)
 	public void setEnableDictionaryEncoding(boolean enableDictionaryEncoding) {
 		this.enableDictionaryEncoding = enableDictionaryEncoding;
 	}
@@ -649,7 +630,7 @@ public class ParquetSink extends AbstractOperator {
 		return enableDictionaryEncoding;
 	}
 
-	@Parameter(name = "enableSchemaValidation", description = "", optional = true)
+	@Parameter(name = "enableSchemaValidation", description = "Enable parquet schema validation", optional = true)
 	public void setEnableSchemaValidation(boolean enableSchemaValidation) {
 		this.enableSchemaValidation = enableSchemaValidation;
 	}
@@ -658,7 +639,7 @@ public class ParquetSink extends AbstractOperator {
 		return enableSchemaValidation;
 	}
 
-	@Parameter(name = "overwrite", description = "", optional = true)
+	@Parameter(name = "overwrite", description = "Overwrite target file is already exists", optional = true)
 	public void setOverwrite(boolean overwrite) {
 		this.overwrite = overwrite;
 	}
@@ -667,7 +648,7 @@ public class ParquetSink extends AbstractOperator {
 		return this.overwrite;
 	}
 
-	@Parameter(name = "autoCreate", description = "", optional = true)
+	@Parameter(name = "autoCreate", description = "Automatically create output file on application start-up", optional = true)
 	public void setAutoCreate(boolean autoCreate) {
 		this.autoCreate = autoCreate;
 	}
@@ -676,7 +657,7 @@ public class ParquetSink extends AbstractOperator {
 		return this.autoCreate;
 	}
 
-	@Parameter(name = "writerVersion", description = "", optional = true)
+	@Parameter(name = "writerVersion", description = "Parquet writer version. Supported values are 1.0 and 2.0", optional = true)
 	public void setWriterVersion(String writerVersion) {
 		this.writerVersion = WriterVersion.valueOf(writerVersion);
 	}
@@ -685,7 +666,7 @@ public class ParquetSink extends AbstractOperator {
 		return this.writerVersion;
 	}
 
-	@Parameter(name = "tuplesPerFile", description = "", optional = true)
+	@Parameter(name = "tuplesPerFile", description = "Close target file after number of tuples specified in this param was written.", optional = true)
 	public void setTuplesPerFile(int tuplesPerFile) {
 		this.tuplesPerFile = tuplesPerFile;
 	}
@@ -694,7 +675,7 @@ public class ParquetSink extends AbstractOperator {
 		return this.tuplesPerFile;
 	}
 
-	@Parameter(name = "partitionKeyNames", description = "", optional = true, cardinality = -1)
+	@Parameter(name = "partitionKeyNames", description = "Partition key names. The keys used in combination with values specified by 'partitionValueAttrNames' for target files partitioning.", optional = true, cardinality = -1)
 	public void setPartitionKeyNames(List<String> partitionKeyNames) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Set partition key names to '" + partitionKeyNames + "'");
@@ -706,7 +687,7 @@ public class ParquetSink extends AbstractOperator {
 		return this.partitionKeyNames;
 	}
 
-	@Parameter(name = "partitionValueAttrNames", description = "", optional = true, cardinality = -1)
+	@Parameter(name = "partitionValueAttrNames", description = "Attribute names to use for partitioning. Usually the attributes contains timestamp information like year/month/day", optional = true, cardinality = -1)
 	public void setPartitionValueAttrNames(List<String> attrNames) {
 		partitionValueAttrNames = attrNames;
 	}
@@ -715,7 +696,7 @@ public class ParquetSink extends AbstractOperator {
 		return this.partitionValueAttrNames;
 	}
 
-	@Parameter(name = "skipPartitionAttrs", description = "", optional = true)
+	@Parameter(name = "skipPartitionAttrs", description = "Specifies if partition attributes should be wriiten to the target file vs having them as a part of the directory structure only.", optional = true)
 	public void setSkipPartitionAttrs(boolean skipPartitionAttrs) {
 		this.skipPartitionAttrs = skipPartitionAttrs;
 	}
