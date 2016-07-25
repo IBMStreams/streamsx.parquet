@@ -66,7 +66,8 @@ public class ParquetSchemaGenerator {
 				if (attrType.getMetaType().isCollectionType()) {
 					parquetSchema.append(SPLCollectionToParquetType(attr));
 				} else {					
-					parquetSchema.append("required " + SPLPrimitiveToParquetType(attrType, attrName) + ";\n");   
+					//parquetSchema.append("required " + SPLPrimitiveToParquetType(attrType, attrName) + ";\n");   
+					parquetSchema.append("optional " + SPLPrimitiveToParquetType(attrType, attrName) + ";\n");   
 					attrTypesList.add(attrType);
 				}
 			}

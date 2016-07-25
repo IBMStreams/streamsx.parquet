@@ -25,6 +25,7 @@ import org.apache.hadoop.io.BooleanWritable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Writable;
 import org.apache.log4j.Logger;
 
@@ -72,7 +73,9 @@ import parquet.schema.MessageTypeParser;
  * @author apyasic
  *
  */
-@PrimitiveOperator(name = "ParquetSink", namespace = "com.ibm.streamsx.parquet", description = "Java Operator ParquetSink")
+@PrimitiveOperator(name = "ParquetSink", 
+				   namespace = "com.ibm.streamsx.parquet",
+				   description = "Operator allows to write data in Parquet format from streaming applications.")
 @InputPorts({
 		@InputPortSet(description = "Port for tuples ingestion", cardinality = 1, optional = false, windowingMode = WindowMode.NonWindowed, windowPunctuationInputMode = WindowPunctuationInputMode.Oblivious),
 		@InputPortSet(description = "Optional input ports", optional = true, windowingMode = WindowMode.NonWindowed, windowPunctuationInputMode = WindowPunctuationInputMode.Oblivious) })
@@ -106,6 +109,8 @@ public class ParquetSink extends AbstractOperator {
 	// private List<Attribute> partitionKeyAttrs;
 	private List<String> partitionValueAttrNames;
 	private boolean skipPartitionAttrs = true;
+	private boolean setNullTS = true;
+	private boolean setNullString = true;
 
 	/*
 	 * Metrics
@@ -474,9 +479,9 @@ public class ParquetSink extends AbstractOperator {
 				} else {
 					writableValues[i] = null;
 				}
-				break;
+				break;			
 			default:
-				Object attrValue = tuple.getObject(i);
+				Object attrValue = tuple.getObject(i);				
 				writableValues[i] = SPLPrimitiveWritableObj(attrType.getMetaType(), attrValue);
 				break;
 			}
@@ -705,6 +710,25 @@ public class ParquetSink extends AbstractOperator {
 		return this.skipPartitionAttrs;
 	}
 
+	@Parameter(name = "setNullTS", description = "When true set NULL value in the timestamp fields if zero (01/01/1970) timestamp is specified.", optional = true)
+	public void setSetNullTS(boolean setNullTS) {
+		this.setNullTS = setNullTS;
+	}
+
+	public boolean getSetNullTS() {
+		return this.setNullTS;
+	}
+
+	@Parameter(name = "setNullString", description = "When true set NULL value in the string fields if empty (zero length) string is specified", optional = true)
+	public void setSetNullString(boolean setNullString) {
+		this.setNullString = setNullString;
+	}
+
+	public boolean getSetNullString() {
+		return this.setNullString;
+	}
+
+	
 	/*
 	 * Metric definitions
 	 */
@@ -766,7 +790,7 @@ public class ParquetSink extends AbstractOperator {
 		}
 		case UINT8:
 		case INT8: {
-			Byte cValue = ((Byte) value).byteValue();
+			Byte cValue = ((Byte) value).byteValue();			
 			return new ByteWritable(cValue.byteValue());
 		}
 		case UINT16:
@@ -786,21 +810,20 @@ public class ParquetSink extends AbstractOperator {
 		}
 		case FLOAT32: {
 			Float cValue = (Float) value;
-			return new FloatWritable(cValue.floatValue());
+			return cValue.isNaN() ? null : new FloatWritable(cValue.floatValue());
 		}
 		case FLOAT64: {
 			Double cValue = (Double) value;
-			return new DoubleWritable(cValue.doubleValue());
+			return cValue.isNaN() ? null : new DoubleWritable(cValue.doubleValue());
 		}
 		case RSTRING: {
 			RString cValue = (RString) value;
-			return new BinaryWritable(Binary.fromByteArray(cValue.getData()));
+			return (getSetNullString() && (cValue.getLength() == 0)) ? null : new BinaryWritable(Binary.fromByteArray(cValue.getData()));
 		}
 		case TIMESTAMP: {
 			Timestamp cValue = (Timestamp) value;
-			return new BinaryWritable(
-					NanoTimeUtils.getNanoTime((cValue.getSeconds() >= 0 && cValue.getNanoseconds() >= 0
-							? cValue.getSQLTimestamp() : new java.sql.Timestamp(0))).toBinary());
+			return (getSetNullTS() && cValue.getSeconds() == 0 && cValue.getNanoseconds() == 0) ? null : new BinaryWritable(NanoTimeUtils.getNanoTime((cValue.getSeconds() >= 0 && cValue.getNanoseconds() >= 0
+					? cValue.getSQLTimestamp() : new java.sql.Timestamp(0))).toBinary());  				
 		}
 		case BLOB: {
 			Blob cValue = (Blob) value;

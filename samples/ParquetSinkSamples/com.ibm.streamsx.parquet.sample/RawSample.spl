@@ -2,6 +2,12 @@ namespace com.ibm.streamsx.parquet.sample;
 
 use com.ibm.streamsx.parquet::ParquetSink ;
 
+
+/**
+ * The sample demonstrates ParquetSink operator 
+ * generating uncompressed parquet files. 
+ * The operator closing output files for each 4 tuples.
+ */
 composite RawSample {
 
 	param

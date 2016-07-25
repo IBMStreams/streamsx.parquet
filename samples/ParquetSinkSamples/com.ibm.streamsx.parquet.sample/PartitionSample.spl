@@ -4,7 +4,8 @@ use com.ibm.streamsx.parquet::ParquetSink ;
 
 /**
  * The sample demonstrates ParquetSink
- * utilization for timestamp-based partition
+ * utilization for timestamp-based partition.
+ * The output files are closed based on tuple count.
  * 
  */
 composite PartitionCloseOnCountSample {
