@@ -775,7 +775,7 @@ public class ParquetSink extends AbstractOperator {
 	}
 
 	public Metric getnOpenedFiles() {
-		return nClosedFiles;
+		return nOpenedFiles;
 	}
 
 	/*
