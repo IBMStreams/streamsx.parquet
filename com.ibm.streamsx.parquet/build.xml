@@ -11,18 +11,20 @@
 	<property name="streams.install" value="${env.STREAMS_INSTALL}" />
 	<property name="maven.bin" value="${env.M2_HOME}/bin/mvn" />
 
-	<property name="src.dir" value="impl/java/src" />
-	<property name="build.dir" value="impl/java/bin" />
-	<property name="impl.lib.dir" value="impl/lib" />
-	<property name="lib.dir" value="lib" />
-	<property name="test.src.dir" value="test/src" />
-	<property name="test.build.dir" value="test/bin/parquetSink" />
-	<property name="test.report.dir" value="test/report" />
-	<property name="ext.downloads.dir" value="opt/downloaded" />
-	<property name="gensrc.dir" value="${basedir}/impl/java/src-gen" />
+	<property name="src.dir" location="impl/java/src" />
+	<property name="build.dir" location="impl/java/bin" />
+	<property name="impl.lib.dir" location="impl/lib" />
+	<property name="lib.dir" location="lib" />
+	<property name="test.src.dir" location="test/src" />
+	<property name="test.build.dir" location="test/bin/parquetSink" />
+	<property name="test.bin.dir" location="test/bin" />
+	<property name="test.report.dir" location="test/report" />
+	<property name="ext.downloads.dir" location="opt/downloaded" />
+	<property name="gensrc.dir" location="${basedir}/impl/java/src-gen" />
+	<property name="doc.dir" location="doc" />
+	<property name="opt.dir" location="opt" />
 	<property name="jarfile" value="com.ibm.streamsx.parquet.jar" />
 	<property name="spl-mt" value="${streams.install}/bin/spl-make-toolkit" />
-	<property name="release.base" location="release-${ant.project.name}" />
 	
 	<target name="init">
 		<fail unless="env.M2_HOME" 
@@ -44,9 +46,14 @@
 		<delete dir="output"/>
 		<delete dir="impl/java/bin"/>
 		<delete dir="${gensrc.dir}"/>
+		<delete dir="${doc.dir}"/>
+		<delete dir="${opt.dir}"/>
 		<delete dir="${test.build.dir}"/>
+		<delete dir="${test.bin.dir}"/>
 		<delete dir="${test.report.dir}/xml"/>
 		<delete dir="${test.report.dir}/html"/>
+		<delete dir="${test.report.dir}"/>
+		<delete file="${basedir}/com.ibm.streamsx.parquet/ParquetSink/ParquetSink.xml" quiet="true"/>
 	</target>
 
 
@@ -71,7 +78,6 @@
 	
 	
 	<target name="all" depends="jar,cpp"/>
-	<target name="release" depends="clean,all,create_release_bundle"/>	
 	
 	<target name="cpp">
 		<exec executable="${spl-mt}" failonerror="true">
@@ -128,6 +134,14 @@
 		<delete dir="${build.dir}" />		
 	</target>
 
+	<target name="indextoolkit">
+	    <echo message="Tookit to index: ${basedir}"/>
+	    <exec executable="${streams.install}/bin/spl-make-toolkit">
+	        <arg value="--directory"/>
+	        <arg value="${basedir}"/>
+	        <arg value="-m"/>
+	    </exec>
+	</target>
 	
 	<target name="test" depends="jar">
 	    <javac srcdir="${test.src.dir}" 
@@ -157,22 +171,7 @@
 			 <report format="frames" todir="${test.report.dir}/html"/>
 		</junitreport>
 	</target>
-
-	<target name="create_release_bundle">
-	      <tstamp/>
-	      <property name="release.dir" location="${release.base}" />
-	      <mkdir dir="${release.dir}" />
-	      <property name="releasefilename" value="${release.dir}/com.ibm.streamsx.parquet-v1.0.2-${DSTAMP}-${TSTAMP}.tgz"/>
-	      <tar compression="gzip" longfile="gnu" destfile="${releasefilename}">
-	         <tarfileset dir="${basedir}" filemode="755" />	         
-	         <tarfileset dir="../${basedir}" >
-	           <include name="com.ibm.streamsx.parquet/**"/>
-	           <exclude name="**/.gitignore"/>
-	         </tarfileset>
-	      </tar>
-	      <checksum file="${releasefilename}"/>
-	      <checksum algorithm="sha1" file="${releasefilename}"/>
-	  </target>
 	
 </project>
+
 

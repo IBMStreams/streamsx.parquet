@@ -1,0 +1,48 @@
+namespace com.ibm.streamsx.parquet.sample;
+
+use com.ibm.streamsx.parquet::ParquetSink ;
+
+/**
+ * The sample demonstrates ParquetSink operator 
+ * generating compressed parquet file on local filesystem. 
+ */
+public composite ParquetFileWriterSample {
+
+	param
+		expression<rstring> $rootPath: getSubmissionTimeValue("rootPath", "/tmp/parquet");
+	         
+	type
+		RawNetworkEvent_t =              
+			int32 source_port, 
+			int32 tcpLength, 
+			int64 mms,
+			int32 dest_port, 
+			int64 fileLength;
+	         
+	graph	
+
+		/**
+		 * Read and Parse raw events
+		 */		
+		stream<RawNetworkEvent_t> NetworkEvent = FileSource()
+		{
+			param
+				file: getThisToolkitDir() + "/opt/rawSampleData.txt";
+				format: csv;
+				separator: "|";
+				ignoreExtraCSVValues: true;
+		}
+
+		() as NetworkEventParquetSink = ParquetSink(NetworkEvent)
+		{
+			param
+				hdfsUri: "";
+				hdfsUser: "";
+				rootPath: $rootPath;
+				file:  "sample_data_parquet.snappy";
+				overwrite: true;
+				compressionType: "snappy"; 
+		}
+
+}
+

@@ -53,8 +53,8 @@ public class ParquetSinkTest
        	JavaOperatorTester tester = new JavaOperatorTester();    	
     	OperatorInvocation<ParquetSink> parquetSinkInvoke =  tester.singleOp(ParquetSink.class);        
     	
-    	parquetSinkInvoke.setStringParameter("hdfsUri", "hdfs://stream-blade03.haifa.ibm.com:9000")
-     	       .setStringParameter("rootPath", "/Data/Bigsql/parquetTest")
+    	parquetSinkInvoke.setStringParameter("hdfsUri", "")
+     	       .setStringParameter("rootPath", "/tmp/parquet")
      	       .setStringParameter("file", "netaction")
      	       .setIntParameter("tuplesPerFile" , 100)
      		   .setStringParameter("compressionType", "SNAPPY")
@@ -111,8 +111,8 @@ public class ParquetSinkTest
     	JavaOperatorTester tester = new JavaOperatorTester();    	
     	OperatorInvocation<ParquetSink> parquetSinkInvoke =  tester.singleOp(ParquetSink.class);        
     	
-    	parquetSinkInvoke.setStringParameter("hdfsUri", "hdfs://stream-blade03.haifa.ibm.com:9000")
-     	       .setStringParameter("rootPath", "/Data/Bigsql/jupiter2/runtime")
+    	parquetSinkInvoke.setStringParameter("hdfsUri", "")
+     	       .setStringParameter("rootPath", "/tmp/parquet")
      	       .setStringParameter("file", "netaction")
      	       .setIntParameter("tuplesPerFile" , 100)
      		   .setStringParameter("compressionType", "SNAPPY")
