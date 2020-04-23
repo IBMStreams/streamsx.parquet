@@ -1,6 +1,6 @@
 namespace com.ibm.streamsx.parquet.sample;
 
-use com.ibm.streamsx.parquet::ParquetSink ;
+use com.ibm.streamsx.parquet::ParquetSink;
 
 /**
  * The sample demonstrates ParquetSink
@@ -8,15 +8,14 @@ use com.ibm.streamsx.parquet::ParquetSink ;
  * The output files are closed based on tuple count.
  * 
  */
-composite PartitionCloseOnCountSample {
+public composite PartitionCloseOnCountSample {
 
 	param
 		expression<rstring> $hdfsUri: getSubmissionTimeValue("hdfsUri", "hdfs://9.148.58.232:8020");
 		expression<rstring> $hdfsUser : getSubmissionTimeValue("hdfsUser", "hdfs");
-		expression<rstring> $hdfsRootPath: getSubmissionTimeValue("hdfsRootPath", "/user/hdfshome/parquet/partitioned");
+		expression<rstring> $rootPath: getSubmissionTimeValue("rootPath", "/user/hdfshome/parquet/partitioned");
 	         
 	graph
-		
 
 		/**
 		 * Read and Parse raw events
@@ -24,7 +23,7 @@ composite PartitionCloseOnCountSample {
 		stream<CompressionSample.RawNetworkEvent_t> NetworkEvent = FileSource()
 		{
 			param
-				file: "partitionSampleData.txt";
+				file: getThisToolkitDir() + "/opt/partitionSampleData.txt";
 				format: csv;
 				separator: "|";
 		}
@@ -43,10 +42,10 @@ composite PartitionCloseOnCountSample {
 				}
 			
 			output PartitionedNetworkEvent:
-            	YEAR = (int32)year(dt_orig_ts), 
-            	MONTH = ((int32)month(dt_orig_ts)) + 1, 
-            	DAY = (int32)day(dt_orig_ts), 
-             	HOUR = (int32)hour(dt_orig_ts);
+				YEAR = (int32)year(dt_orig_ts), 
+				MONTH = ((int32)month(dt_orig_ts)) + 1, 
+				DAY = (int32)day(dt_orig_ts), 
+				HOUR = (int32)hour(dt_orig_ts);
 	
 		}
 
@@ -56,14 +55,14 @@ composite PartitionCloseOnCountSample {
 			param
 				hdfsUri: $hdfsUri;
 				hdfsUser: $hdfsUser;
-     	    	rootPath: $hdfsRootPath;
-     	        file:  "partitionSampleData.txt";
-     	        overwrite: true;
-     	        compressionType: "uncompressed";
-     	        tuplesPerFile: 5;
-               	partitionKeyNames: "year", "month", "day", "hour";
-                partitionValueAttrNames: "YEAR", "MONTH", "DAY", "HOUR";    
-      	        blockSize: 67108864; 
+				rootPath: $rootPath;
+				file:  "partitionSampleData.txt";
+				overwrite: true;
+				compressionType: "uncompressed";
+				tuplesPerFile: 5;
+				partitionKeyNames: "year", "month", "day", "hour";
+				partitionValueAttrNames: "YEAR", "MONTH", "DAY", "HOUR";    
+				blockSize: 67108864; 
 		}
 
 }

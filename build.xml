@@ -8,7 +8,7 @@
   <property name="toolkit" location="com.ibm.streamsx.parquet"/>
   <property name="release.base" location="release-${ant.project.name}-" />
   <property name="toolkit.test" location="tests" />
-
+  <property name="samples" location="samples"/>
 	
   <target name="all" depends="toolkit,samples, spldoctoolkits, toolkitIndexOnly"/>
 
@@ -48,6 +48,11 @@
           <fileset dir="${basedir}" includes="release-*/"/>
         </delete>
   	<ant dir="${toolkit}" target="clean"/>
+     <exec executable="make" failonerror="false" dir="${samples}">
+        <arg value="-f" />
+        <arg value="Makefile" />
+        <arg value="clean" />
+     </exec>
   </target>
 
   <target name="toolkit"

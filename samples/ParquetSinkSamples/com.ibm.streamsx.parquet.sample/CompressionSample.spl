@@ -1,12 +1,12 @@
 namespace com.ibm.streamsx.parquet.sample;
 
-use com.ibm.streamsx.parquet::ParquetSink ;
+use com.ibm.streamsx.parquet::ParquetSink;
 
 /**
  * The sample demonstrates ParquetSink operator 
  * compression options in action
  */
-composite CompressionSample
+public composite CompressionSample
 {
 	param 
 		expression<rstring> $compressionType;
@@ -14,27 +14,25 @@ composite CompressionSample
 		expression<rstring> $outFileExt;
 		expression<rstring> $hdfsUri;
 		expression<rstring> $hdfsUser;
-		expression<rstring> $hdfsRootPath;
+		expression<rstring> $rootPath;
 		
 	type static
 		RawNetworkEvent_t = 
-            rstring dt_orig,
-            rstring computer_id, 
-            rstring process_name,                       
-            rstring operation, 
-            rstring operation_result, 
-            rstring source_host, 
-            int32 source_port, 
-            int32 tcpLength, 
-            int64 mms,
-            rstring dest_host, 
-            int32 dest_port, 
-            rstring filename, 
-            int64 fileLength; 
+		rstring dt_orig,
+		rstring computer_id, 
+		rstring process_name,                       
+		rstring operation, 
+		rstring operation_result, 
+		rstring source_host, 
+		int32 source_port, 
+		int32 tcpLength, 
+		int64 mms,
+		rstring dest_host, 
+		int32 dest_port, 
+		rstring filename, 
+		int64 fileLength; 
 		
-	
 	graph
-		
 
 		/**
 		 * Read and Parse raw events
@@ -42,7 +40,7 @@ composite CompressionSample
 		stream<RawNetworkEvent_t> NetworkEvent = FileSource()
 		{
 			param
-				file: $dataFile;
+				file: getThisToolkitDir() + "/opt/"+$dataFile;
 				format: csv;
 				separator: "|";
 		}
@@ -53,22 +51,22 @@ composite CompressionSample
 			param
 				hdfsUri: $hdfsUri;
 				hdfsUser:$hdfsUser;
-     	    	rootPath: $hdfsRootPath;
-     	        file:  $dataFile + "." + $outFileExt;
-     	        overwrite: true;
-     	        compressionType: $compressionType;
-     	        tuplesPerFile: 10;
-     	        // set block size to 64M - default is 128M
-     	        blockSize: 67108864;      	        
+				rootPath: $rootPath;
+				file:  $dataFile + "." + $outFileExt;
+				overwrite: true;
+				compressionType: $compressionType;
+				tuplesPerFile: 10;
+				// set block size to 64M - default is 128M
+				blockSize: 67108864;      	        
 		}
 }
 
-composite CompressionSampleRunner
+public composite CompressionSampleRunner
 {
 	param
 		expression<rstring> $hdfsUri: getSubmissionTimeValue("hdfsUri");
 		expression<rstring> $hdfsUser : getSubmissionTimeValue("hdfsUser");
-		expression<rstring> $hdfsRootPath: getSubmissionTimeValue("hdfsRootPath");
+		expression<rstring> $rootPath: getSubmissionTimeValue("rootPath");
 
 	graph
 
@@ -79,7 +77,7 @@ composite CompressionSampleRunner
 				outFileExt: "gz";
 				hdfsUri: $hdfsUri;
 				hdfsUser:$hdfsUser;
-     	    	hdfsRootPath: $hdfsRootPath;
+				rootPath: $rootPath;
      	    	
 		}
 		() as SnappySample = CompressionSample() { 
@@ -89,6 +87,6 @@ composite CompressionSampleRunner
 				outFileExt: "snappy";
 				hdfsUri: $hdfsUri;
 				hdfsUser:$hdfsUser;
-     	    	hdfsRootPath: $hdfsRootPath;
+				rootPath: $rootPath;
 		}
 }
