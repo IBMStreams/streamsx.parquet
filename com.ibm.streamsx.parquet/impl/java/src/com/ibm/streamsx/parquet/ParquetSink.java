@@ -180,44 +180,50 @@ public class ParquetSink extends AbstractOperator {
 
 		// HDFS client configuration
 		config = new Configuration();
-
-		// This property is used only if the value of
-		// dfs.client.block.write.replace-datanode-on-failure.enable is true.
-		// ALWAYS: always add a new datanode when an existing datanode is
-		// removed.
-		// NEVER: never add a new datanode.
-		// DEFAULT: Let r be the replication number. Let n be the number of
-		// existing dat..array_element:  anodes.
-		// Add a new datanode only if r is greater than or equal to 3 and either
-		// (1) floor(r/2) is
-		// greater than or equal to n; or (2) r is greater than n and the block
-		// is hflushed/appended.
-		config.set("dfs.client.block.write.replace-datanode-on-failure.policy", "ALWAYS");
-
-		// When using DEFAULT or ALWAYS, if only one DataNode succeeds in the
-		// pipeline,
-		// the recovery will never succeed and client will not be able to
-		// perform the write.
-		// This problem is addressed with this configuration
-		// property:dfs.client.block.write.replace-datanode-on-failure.best-effort
-		// which defaults to false. With the default setting, the client will
-		// keep trying until
-		// the specified policy is satisfied. When this property is set to true,
-		// even if the specified
-		// policy can't be satisfied (for example, there is only one DataNode
-		// that succeeds in the pipeline,
-		// which is less than the policy requirement), the client will still be
-		// allowed to continue to write.
-		config.set("dfs.client.block.write.replace-datanode-on-failure.best-effort", "true");
-
-		// config.set("fs.defaultFS", getHdfsUri());
-		fs = FileSystem.get(new URI(getHdfsUri()), config, getHdfsUser());
-
-		// set username
-		System.setProperty("HADOOP_USER_NAME", getHdfsUser());
-
-		// fs = FileSystem.get(config);
-
+		
+		// "hadoop.home.dir" must be defined to avoid exception
+		System.setProperty("hadoop.home.dir", "/tmp");
+		
+		if (getHdfsUri().equals("")) {
+			config.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
+			config.set("fs.file.impl", "org.apache.hadoop.fs.LocalFileSystem");
+		    fs = FileSystem.getLocal(config);
+		} else {
+			// This property is used only if the value of
+			// dfs.client.block.write.replace-datanode-on-failure.enable is true.
+			// ALWAYS: always add a new datanode when an existing datanode is
+			// removed.
+			// NEVER: never add a new datanode.
+			// DEFAULT: Let r be the replication number. Let n be the number of
+			// existing dat..array_element:  anodes.
+			// Add a new datanode only if r is greater than or equal to 3 and either
+			// (1) floor(r/2) is
+			// greater than or equal to n; or (2) r is greater than n and the block
+			// is hflushed/appended.
+			config.set("dfs.client.block.write.replace-datanode-on-failure.policy", "ALWAYS");
+	
+			// When using DEFAULT or ALWAYS, if only one DataNode succeeds in the
+			// pipeline,
+			// the recovery will never succeed and client will not be able to
+			// perform the write.
+			// This problem is addressed with this configuration
+			// property:dfs.client.block.write.replace-datanode-on-failure.best-effort
+			// which defaults to false. With the default setting, the client will
+			// keep trying until
+			// the specified policy is satisfied. When this property is set to true,
+			// even if the specified
+			// policy can't be satisfied (for example, there is only one DataNode
+			// that succeeds in the pipeline,
+			// which is less than the policy requirement), the client will still be
+			// allowed to continue to write.
+			config.set("dfs.client.block.write.replace-datanode-on-failure.best-effort", "true");
+	
+			// config.set("fs.defaultFS", getHdfsUri());
+			fs = FileSystem.get(new URI(getHdfsUri()), config, getHdfsUser());
+	
+			// set username
+			System.setProperty("HADOOP_USER_NAME", getHdfsUser());
+		}
 		compressionType = CompressionCodecName.valueOf(compressionTypeStr);
 		// generate schema from an output tuple format
 		String parquetSchemaStr = ParquetSchemaGenerator.getInstance().generateParquetSchema(context,
@@ -237,7 +243,11 @@ public class ParquetSink extends AbstractOperator {
 
 		// the file might be opened here if the path
 		// generation logic is not tuple specific
-		staticOutPath = new Path(hdfsUri + ParquetConstants.PATH_DELIMITER + rootPath);
+		if (getHdfsUri().equals("")) {
+			staticOutPath = new Path(rootPath);	
+		} else {
+			staticOutPath = new Path(hdfsUri + ParquetConstants.PATH_DELIMITER + rootPath);
+		}
 		if (!partitionSupportRequired() && getAutoCreate()) {
 
 			Path outFilePath = generatePath(null, getFile(), 0);
@@ -563,7 +573,7 @@ public class ParquetSink extends AbstractOperator {
 		return this.pageSize;
 	}
 
-	@Parameter(name = "hdfsUri", description = "Target HDFS URI", optional = false)
+	@Parameter(name = "hdfsUri", description = "Target HDFS URI. Set empty String for writing to local file system.", optional = false)
 	public void setHdfsUri(String hdfsUri) {
 		this.hdfsUri = hdfsUri;
 	}
