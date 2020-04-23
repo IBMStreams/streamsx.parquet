@@ -1,6 +1,6 @@
 namespace com.ibm.streamsx.parquet.sample;
 
-use com.ibm.streamsx.parquet::ParquetSink ;
+use com.ibm.streamsx.parquet::ParquetSink;
 
 
 /**
@@ -8,22 +8,21 @@ use com.ibm.streamsx.parquet::ParquetSink ;
  * generating uncompressed parquet files. 
  * The operator closing output files for each 4 tuples.
  */
-composite NullValuesSample {
+public composite NullValuesSample {
 
 	param
 		expression<rstring> $hdfsUri: getSubmissionTimeValue("hdfsUri", "hdfs://9.148.58.232:8020");
 		expression<rstring> $hdfsUser : getSubmissionTimeValue("hdfsUser", "hdfs");
-		expression<rstring> $hdfsRootPath: getSubmissionTimeValue("hdfsRootPath", "/user/hdfshome/parquet/partitioned");
-	         
+		expression<rstring> $rootPath: getSubmissionTimeValue("rootPath", "/user/hdfshome/parquet/partitioned");         
 	         
 	type
 		SampleEvent_t =              
 			timestamp vts,
 			timestamp nts,
-            rstring vstr,
-            rstring nstr,
-            float64 vf1,
-            float64 nf1;            
+			rstring vstr,
+			rstring nstr,
+			float64 vf1,
+			float64 nf1;            
 	         
 	graph
 		
@@ -46,12 +45,12 @@ composite NullValuesSample {
 			param
 				hdfsUri: $hdfsUri;
 				hdfsUser: $hdfsUser;
-     	    	rootPath: $hdfsRootPath;
-     	        file:  "nullTest.txt";
-     	        overwrite: true;
-     	        compressionType: "uncompressed";
-     	        tuplesPerFile: 4;
-     	        blockSize: 1048576;
+				rootPath: $rootPath;
+				file:  "nullTest.txt";
+				overwrite: true;
+				compressionType: "uncompressed";
+				tuplesPerFile: 4;
+				blockSize: 1048576;
 		}
 
 }

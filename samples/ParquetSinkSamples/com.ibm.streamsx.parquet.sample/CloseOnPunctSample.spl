@@ -1,6 +1,6 @@
 namespace com.ibm.streamsx.parquet.sample;
 
-use com.ibm.streamsx.parquet::ParquetSink ;
+use com.ibm.streamsx.parquet::ParquetSink;
 
 /**
  * The sample demonstrates ParquetSink operator 
@@ -13,13 +13,12 @@ public composite PartitionCloseOnPunctSample {
 	param
 		expression<rstring> $hdfsUri: getSubmissionTimeValue("hdfsUri");
 		expression<rstring> $hdfsUser : getSubmissionTimeValue("hdfsUser");
-		expression<rstring> $hdfsRootPath: getSubmissionTimeValue("hdfsRootPath");
+		expression<rstring> $rootPath: getSubmissionTimeValue("rootPath");
 		expression<rstring> $hdfsFileDir: getSubmissionTimeValue("hdfsFileDir", "CloseOnPunctTest");
 		expression<rstring> $hdfsFileName: getSubmissionTimeValue("hdfsFileName", "MyFile");
 		expression<rstring> $biTable: getSubmissionTimeValue("biTable", "MY_TABLE");
 		expression<rstring> $parquetCompressionType: getSubmissionTimeValue("parquetCompressionType","snappy");
 		expression<rstring> $parquetSinkVMArgs: getCompileTimeValue("parquetSinkVMArgs","-Xmx4096m");
-		expression<rstring> $dataFile: getSubmissionTimeValue("dataFile", "partitionSampleData.txt");
 		expression<float64> $flushPeriodSecs: (float64)getSubmissionTimeValue("flushPeriodSecs", "30.0");
 		
 	graph
@@ -30,7 +29,7 @@ public composite PartitionCloseOnPunctSample {
 		stream<CompressionSample.RawNetworkEvent_t> NetworkEvent = FileSource()
 		{
 			param
-				file: $dataFile;
+				file: getThisToolkitDir() + "/opt/partitionSampleData.txt";
 				format: csv;
 				separator: "|";
 				initDelay: 10.0;
@@ -50,10 +49,10 @@ public composite PartitionCloseOnPunctSample {
 				}
 			
 			output PartitionedNetworkEvent:
-            	YEAR = (int32)year(dt_orig_ts), 
-            	MONTH = ((int32)month(dt_orig_ts)) + 1, 
-            	DAY = (int32)day(dt_orig_ts), 
-             	HOUR = (int32)hour(dt_orig_ts);
+				YEAR = (int32)year(dt_orig_ts), 
+				MONTH = ((int32)month(dt_orig_ts)) + 1, 
+				DAY = (int32)day(dt_orig_ts), 
+				HOUR = (int32)hour(dt_orig_ts);
 	
 		}
 	
@@ -81,17 +80,17 @@ public composite PartitionCloseOnPunctSample {
 			param
 				hdfsUri : $hdfsUri ;
 				hdfsUser : $hdfsUser ;
-		    	rootPath : $hdfsRootPath + "/" + $hdfsFileDir;
-		 	    file: $hdfsFileName + "." + (rstring)getSeconds(getTimestamp()) + ".{ID}.dat" ;
+				rootPath : $rootPath + "/" + $hdfsFileDir;
+				file: $hdfsFileName + "." + (rstring)getSeconds(getTimestamp()) + ".{ID}.dat" ;
 				autoCreate : false;
-		        compressionType : $parquetCompressionType ;
+				compressionType : $parquetCompressionType ;
 				closeOnPunct : true ;
 				partitionKeyNames: "year", "month", "day", "hour";
-                partitionValueAttrNames: "YEAR", "MONTH", "DAY", "HOUR";   
+				partitionValueAttrNames: "YEAR", "MONTH", "DAY", "HOUR";   
 				skipPartitionAttrs : true ;
 				vmArg : $parquetSinkVMArgs;
-     	        // set block size to 64M - default is 128M
-     	        blockSize: 67108864;
+				// set block size to 64M - default is 128M
+				blockSize: 67108864;
 		}
 		
 		/**
@@ -108,10 +107,11 @@ public composite PartitionCloseOnPunctSample {
 		/**
 		 * Prints out partition update command to standard output
 		 */
-		() as sinkPrefixSink = FileSink(ParquetMetaDataCommand)   {
-		            param
-		                file : "/dev/stdout";
-		                flush: 1u;
+		() as sinkPrefixSink = Custom(ParquetMetaDataCommand as I) {
+			logic
+				onTuple I: {
+					printStringLn((rstring)I);
+				}
 		}
 
-}
+}   	        
