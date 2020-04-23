@@ -1,0 +1,121 @@
+<project name="streamsx.parquet" default="all" basedir=".">
+    <description>
+        Build file for streamsx.parquet project, built the toolkits and samples.
+    </description>
+  <!-- set global properties for this build -->
+  <property environment="env" />
+  <property name="streams.install" value="${env.STREAMS_INSTALL}" />
+  <property name="toolkit" location="com.ibm.streamsx.parquet"/>
+  <property name="release.base" location="release-${ant.project.name}-" />
+  <property name="toolkit.test" location="tests" />
+
+	
+  <target name="all" depends="toolkit,samples, spldoctoolkits, toolkitIndexOnly"/>
+
+  <target name="setcommitversion">
+    <!-- Create the time stamp -->
+    <tstamp/>
+
+    <!-- Extract the git commit hash -->
+    <exec executable="git" outputproperty="commithash">
+        <arg value="rev-parse"/>
+        <arg value="--short"/>
+        <arg value="HEAD"/>
+    </exec>
+
+     <!-- Update the info.xml -->
+     <replace file="${toolkit}/info.xml" token="__dev__" value="commit_${commithash}" summary="yes"/>
+
+    <!-- Extract info from the toolkit's info.xml -->
+    <xmlproperty file="${toolkit}/info.xml" prefix="tkinfo" keepRoot="no"/>
+
+    <echo message="Toolkit Version: ${tkinfo.info:identity.info:version}"/>
+    <echo message="Git Hash: ${commithash}"/>
+     
+  </target>
+
+   <target name="revertversion">
+    <exec executable="git">
+        <arg value="checkout"/>
+        <arg value="--"/>
+        <arg value="${toolkit}/info.xml"/>
+    </exec>
+    </target>
+
+  <target name="clean" depends="cleansamples"
+        description="clean up" >
+        <delete includeemptydirs="true">
+          <fileset dir="${basedir}" includes="release-*/"/>
+        </delete>
+  	<ant dir="${toolkit}" target="clean"/>
+  </target>
+
+  <target name="toolkit"
+        description="Build any code and index the toolkit." >
+  	<ant dir="${toolkit}" target="all"/>
+  </target>
+  
+  <target name="toolkitIndexOnly" description="Index the toolkit.">
+        <ant dir="${toolkit}" target="indextoolkit" /> 
+  </target> 	
+
+  <target name="samples" depends="toolkit">
+    <subant target="indextoolkit" genericantfile="${basedir}/build.xml">
+       <dirset dir="samples" includes="*"/>
+    </subant>
+  </target>
+  <target name="cleansamples">
+    <subant target="cleantoolkit" genericantfile="${basedir}/build.xml">
+       <dirset dir="samples" includes="*"/>
+    </subant>
+  </target>
+
+  <!-- Targets called on samples -->
+  <target name="indextoolkit">
+     <echo message="Tookit to index: ${basedir}"/>
+     <exec executable="${streams.install}/bin/spl-make-toolkit" failonerror="true">
+        <arg value="--directory"/>
+        <arg value="${basedir}"/>
+        <arg value="-m"/>
+     </exec>
+  </target>
+  <target name="cleantoolkit">
+     <echo message="Tookit to clean: ${basedir}"/>
+     <exec executable="${streams.install}/bin/spl-make-toolkit" failonerror="true">
+        <arg value="--clean"/>
+        <arg value="--directory"/>
+        <arg value="${basedir}"/>
+     </exec>
+     <delete dir="${basedir}/output" quiet="true"/>
+  </target>
+  <target name="spldoctoolkits">
+     <exec executable="${streams.install}/bin/spl-make-doc">
+        <arg value="--include-composite-operator-diagram"/>
+        <arg value="--include-source"/>
+        <arg value="--author"/>
+        <arg value="IBMStreams Open Source Community at GitHub - https://github.com/IBMStreams/${ant.project.name}"/>
+        <arg value="--doc-title"/>
+        <arg value="com.ibm.streamsx.parquet"/>
+        <arg value="--toolkit-path"/>
+        <arg value="${toolkit}:samples"/>
+        <arg value="--output-directory"/>
+        <arg value="${toolkit}/doc/spldoc"/>
+     </exec>
+  </target>
+
+  <!-- Targets to build releases -->
+  <target name="release"  depends="clean,setcommitversion,create_release_bundle,revertversion,toolkitIndexOnly"/>
+  <target name="create_release_bundle"  depends="all">
+        <property name="release.dir" location="${release.base}${commithash}" />
+	<mkdir dir="${release.dir}" />
+        <property name="releasefilename" value="${release.dir}/streamsx.parquet.toolkits-${tkinfo.info:identity.info:version}-${DSTAMP}-${TSTAMP}.tgz"/>
+    	<tar compression="gzip" longfile="gnu"
+             destfile="${releasefilename}"
+    	     basedir="${basedir}"
+             includes="${tkinfo.info:identity.info:name}/** samples/**"
+             excludes="**/.gitignore **/.settings/** **/.settings **/.project **/.classpath **/test/** **/build.xml build.xml **/opt **/impl/java"
+    	/>
+        <checksum file="${releasefilename}"/>
+        <checksum algorithm="sha1" file="${releasefilename}"/>
+    </target>
+</project>

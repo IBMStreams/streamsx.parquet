@@ -2,6 +2,7 @@
 toolkit.xml
 impl/nl/include/*.h
 output
+release*/
 
 # These files are generated for C++ primative operators
 # If you want to include a perl module, after this line, do 
