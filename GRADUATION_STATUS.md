@@ -1,5 +1,4 @@
-# streamsx.adaptiveParser Graduation Status
-
+# streamsx.parquet Graduation Status
 
 ## Overview
 Incubation for projects is covered here: https://github.com/IBMStreams/administration/wiki/Project-Incubation-Process
@@ -21,7 +20,7 @@ Incubation for projects is covered here: https://github.com/IBMStreams/administr
 - [ ] :red_circle: Clear release plan
   * Status: **TBD**
 - [ ] :white_check_mark: At least one active committer
-  * Status: one active committer: Alex Pyasik
+  * Status: one active committer
 
 ### Key
 * :white_check_mark: - Complete
