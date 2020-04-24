@@ -9,11 +9,10 @@ efficient compression and encoding schemes.
 See more details at Parquet home page: http://parquet.io/
 
 The Parquet toolkit allows to write data in Parquet format 
-from streaming applications. The toolkit is  implemented in Java and 
-contains ParquetSink operator in its initial version.
+from streaming applications. The toolkit is implemented in Java and 
+contains ParquetSink operator.
 
 Samples showing ParquetSink operator usages are available in 
-a samples folder.  The details about the installation, 
-and configuration are about to be published soon. 
+a samples folder.
 
 Toolkit documentation is available at: http://ibmstreams.github.io/streamsx.parquet/
