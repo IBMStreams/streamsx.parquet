@@ -16,6 +16,7 @@ sidebar:
 Parquet is a columnar storage format for Hadoop.
 Parquet becoming more and more popular due to its very efficient compression and encoding schemes.
 
-See more details at Parquet home page: http://parquet.io/
+See more details at Parquet home page: [http://parquet.io/](http://parquet.io/)
+
 
 
