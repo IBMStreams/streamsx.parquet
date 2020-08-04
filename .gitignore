@@ -42,3 +42,5 @@ impl/lib/*.jar
 .settings
 
 /.project
+.DS_Store
+/**/.DS_Store
