@@ -10,7 +10,7 @@ Incubation for projects is covered here: https://github.com/IBMStreams/administr
 - [ ] :large_orange_diamond: Project is properly documented
   * Status: SPLDOC needs update
 - [ ] :large_orange_diamond: Project has samples and instructions to help users get started easily
-  * Status: There are many samples exist, the article on streamsdev in the process
+  * Status: There are many samples
 - [ ] :white_check_mark: Sufficient testing
   * Status: Tested on RHEL6/7, Centos 6/7, Power7
 - [ ] :red_circle: Instructions on how to get started with development and contributing to project
